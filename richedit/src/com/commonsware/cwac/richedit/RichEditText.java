@@ -54,6 +54,9 @@ public class RichEditText extends EditText implements
   public static final Effect<Boolean> SUPERSCRIPT=
       new SuperscriptEffect();
   public static final Effect<Boolean> SUBSCRIPT=new SubscriptEffect();
+  public static final Effect<Float> RELATIVE_SIZE=new RelativeSizeEffect();
+  public static final Effect<Integer> ABSOLUTE_SIZE=new AbstractAbsoluteSizeEffect.Dip();
+  public static final Effect<String> URL=new URLEffect();
 
   private static final ArrayList<Effect<?>> EFFECTS=
       new ArrayList<Effect<?>>();
@@ -84,6 +87,9 @@ public class RichEditText extends EditText implements
      */
     EFFECTS.add(LINE_ALIGNMENT);
     EFFECTS.add(TYPEFACE);
+    EFFECTS.add(ABSOLUTE_SIZE);
+    EFFECTS.add(RELATIVE_SIZE);
+    EFFECTS.add(URL);
   }
 
   /*
@@ -270,6 +276,30 @@ public class RichEditText extends EditText implements
 
       return(true);
     }
+    else if (itemId == R.id.cwac_richedittext_grow) {
+      Float current=getEffectValue(RELATIVE_SIZE);
+
+      if (current==null) {
+        applyEffect(RELATIVE_SIZE, 1.2f);
+      }
+      else {
+        applyEffect(RELATIVE_SIZE, current+0.2f);
+      }
+
+      return(true);
+    }
+    else if (itemId == R.id.cwac_richedittext_shrink) {
+      Float current=getEffectValue(RELATIVE_SIZE);
+
+      if (current==null) {
+        applyEffect(RELATIVE_SIZE, 0.8f);
+      }
+      else if (current>0.5f) {
+        applyEffect(RELATIVE_SIZE, current-0.2f);
+      }
+
+      return(true);
+    }
     else if (itemId == R.id.cwac_richedittext_serif) {
       applyEffect(RichEditText.TYPEFACE, "serif");
 
@@ -330,6 +360,12 @@ public class RichEditText extends EditText implements
   public void enableActionModes(boolean forceActionMode) {
     this.forceActionMode=forceActionMode;
 
+    EditorActionModeCallback.Native sizeMode=
+        new EditorActionModeCallback.Native(
+            (Activity)getContext(),
+            R.menu.cwac_richedittext_size,
+            this, this);
+
     EditorActionModeCallback.Native effectsMode=
         new EditorActionModeCallback.Native(
                                             (Activity)getContext(),
@@ -348,6 +384,7 @@ public class RichEditText extends EditText implements
                                             R.menu.cwac_richedittext_main,
                                             this, this);
 
+    effectsMode.addChain(R.id.cwac_richedittext_size, sizeMode);
     mainMode.addChain(R.id.cwac_richedittext_effects, effectsMode);
     mainMode.addChain(R.id.cwac_richedittext_fonts, fontsMode);
 

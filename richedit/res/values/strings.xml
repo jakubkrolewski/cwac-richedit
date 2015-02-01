@@ -19,5 +19,8 @@
 	<string name="normal">Normal</string>
 	<string name="center">Center</string>
 	<string name="opposite">Opposite</string>
+  <string name="cwac_richedit_grow">Grow</string>
+  <string name="cwac_richedit_shrink">Shrink</string>
+  <string name="cwac_richedit_size">Size</string>
 
 </resources>

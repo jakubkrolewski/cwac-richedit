@@ -13,15 +13,9 @@
   </item>
 
   <item
-    android:id="@+id/cwac_richedittext_superscript"
+    android:id="@+id/cwac_richedittext_size"
     android:showAsAction="always|withText"
-    android:title="@string/superscript">
+    android:title="@string/cwac_richedit_size">
   </item>
-  
-  <item
-    android:id="@+id/cwac_richedittext_subscript"
-    android:showAsAction="always|withText"
-    android:title="@string/subscript">
-  </item>
-  
+
 </menu>
