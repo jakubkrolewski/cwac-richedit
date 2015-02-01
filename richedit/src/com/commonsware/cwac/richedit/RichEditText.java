@@ -55,7 +55,7 @@ public class RichEditText extends EditText implements
       new SuperscriptEffect();
   public static final Effect<Boolean> SUBSCRIPT=new SubscriptEffect();
   public static final Effect<Float> RELATIVE_SIZE=new RelativeSizeEffect();
-  public static final Effect<Integer> ABSOLUTE_SIZE=new AbstractAbsoluteSizeEffect.Dip();
+  public static final Effect<Integer> ABSOLUTE_SIZE=new AbsoluteSizeEffect.Dip();
   public static final Effect<String> URL=new URLEffect();
 
   private static final ArrayList<Effect<?>> EFFECTS=
