@@ -9,6 +9,7 @@ repositories {
 dependencies {
     debugCompile project(':richedit')
     releaseCompile 'com.commonsware.cwac:richedit:0.3.+'
+    compile 'com.commonsware.cwac:colormixer:0.6.+'
 }
 
 android {

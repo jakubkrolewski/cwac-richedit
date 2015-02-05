@@ -28,6 +28,7 @@ public class EditorActionModeCallback {
   protected EditorActionModeListener listener=null;
   protected HashMap<Integer, EditorActionModeCallback> chains=
       new HashMap<Integer, EditorActionModeCallback>();
+  protected int itemToHide=0;
 
   EditorActionModeCallback(int menuResource, RichEditText editor,
                            EditorActionModeListener listener) {
@@ -42,6 +43,10 @@ public class EditorActionModeCallback {
 
   void addChain(int menuItemId, EditorActionModeCallback toChainTo) {
     chains.put(menuItemId, toChainTo);
+  }
+
+  void hideItem(int menuItemId) {
+    itemToHide=menuItemId;
   }
 
   public static class Native extends EditorActionModeCallback implements
@@ -66,6 +71,11 @@ public class EditorActionModeCallback {
       }
 
       inflater.inflate(menuResource, menu);
+
+      if (itemToHide!=0) {
+        menu.findItem(itemToHide).setVisible(false);
+      }
+
       listener.setIsShowing(true);
 
       return(true);
@@ -91,7 +101,7 @@ public class EditorActionModeCallback {
 
       if (next != null) {
         next.setSelection(new Selection(editor));
-        host.startActionMode((EditorActionModeCallback.Native)next);
+        editor.setCurrentActionMode(host.startActionMode((EditorActionModeCallback.Native)next));
         mode.finish();
 
         return(true);

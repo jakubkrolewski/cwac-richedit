@@ -15,15 +15,22 @@
 package com.commonsware.cwac.richedit.demo;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Selection;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.commonsware.cwac.colormixer.ColorMixerActivity;
+import com.commonsware.cwac.richedit.ColorPicker;
+import com.commonsware.cwac.richedit.ColorPickerOperation;
 import com.commonsware.cwac.richedit.RichEditText;
 import com.commonsware.cwac.richedit.URLEffect;
 
-public class RichTextEditorDemoActivity extends Activity {
-  RichEditText editor=null;
+public class RichTextEditorDemoActivity extends Activity
+  implements ColorPicker {
+  private static final int COLOR_REQUEST=1337;
+  private RichEditText editor=null;
+  private ColorPickerOperation colorPickerOp=null;
   
   @Override
   public void onCreate(Bundle savedInstanceState) {
@@ -32,6 +39,7 @@ public class RichTextEditorDemoActivity extends Activity {
     setContentView(R.layout.main);
     
     editor=(RichEditText)findViewById(R.id.editor);
+    editor.setColorPicker(this);
     editor.enableActionModes(true);
   }
 
@@ -57,5 +65,42 @@ public class RichTextEditorDemoActivity extends Activity {
     }
 
     return(super.onOptionsItemSelected(item));
+  }
+
+  @Override
+  public boolean pick(ColorPickerOperation op) {
+    Intent i=new Intent(this, ColorMixerActivity.class);
+
+    i.putExtra(ColorMixerActivity.TITLE, "Pick a Color");
+
+    if (op.hasColor()) {
+      i.putExtra(ColorMixerActivity.COLOR, op.getColor());
+    }
+
+    this.colorPickerOp=op;
+    startActivityForResult(i, COLOR_REQUEST);
+
+    return(true);
+  }
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode,
+                               Intent result) {
+    int color=0;
+
+    if (colorPickerOp!=null && requestCode==COLOR_REQUEST) {
+      if (resultCode==Activity.RESULT_OK) {
+        color=result.getIntExtra(ColorMixerActivity.COLOR, 0);
+      }
+
+      if (color==0) {
+        colorPickerOp.onPickerDismissed();
+      }
+      else {
+        colorPickerOp.onColorPicked(color);
+      }
+
+      colorPickerOp=null;
+    }
   }
 }

@@ -19,11 +19,13 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.text.Layout;
+import android.text.method.BaseKeyListener;
 import android.text.style.StrikethroughSpan;
 import android.text.style.SubscriptSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
+import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.widget.EditText;
 import java.util.ArrayList;
@@ -57,6 +59,8 @@ public class RichEditText extends EditText implements
   public static final Effect<Float> RELATIVE_SIZE=new RelativeSizeEffect();
   public static final Effect<Integer> ABSOLUTE_SIZE=new AbsoluteSizeEffect.Dip();
   public static final Effect<String> URL=new URLEffect();
+  public static final AbstractColorEffect<?> BACKGROUND=new BackgroundColorEffect();
+  public static final AbstractColorEffect<?> FOREGROUND=new ForegroundColorEffect();
 
   private static final ArrayList<Effect<?>> EFFECTS=
       new ArrayList<Effect<?>>();
@@ -66,6 +70,8 @@ public class RichEditText extends EditText implements
   private EditorActionModeCallback.Native mainMode=null;
   private boolean forceActionMode=false;
   private boolean keyboardShortcuts=true;
+  private ColorPicker colorPicker=null;
+  private ActionMode actionMode=null;
 
   /*
    * EFFECTS is a roster of all defined effects, for simpler
@@ -90,6 +96,8 @@ public class RichEditText extends EditText implements
     EFFECTS.add(ABSOLUTE_SIZE);
     EFFECTS.add(RELATIVE_SIZE);
     EFFECTS.add(URL);
+    EFFECTS.add(BACKGROUND);
+    EFFECTS.add(FOREGROUND);
   }
 
   /*
@@ -150,16 +158,19 @@ public class RichEditText extends EditText implements
       isSelectionChanging=false;
     }
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-      if (forceActionMode && mainMode != null && start != end) {
-        postDelayed(new Runnable() {
-          public void run() {
-            if (!actionModeIsShowing) {
-              startActionMode(mainMode);
-            }
+    if (forceActionMode && mainMode != null && start != end) {
+      postDelayed(new Runnable() {
+        public void run() {
+          if (!actionModeIsShowing) {
+            setCurrentActionMode(startActionMode(mainMode));
           }
-        }, 500);
-      }
+        }
+      }, 500);
+    }
+    else if (start==end && actionMode!=null) {
+      actionMode.finish();
+      actionMode=null;
+      actionModeIsShowing=false;
     }
   }
 
@@ -187,6 +198,17 @@ public class RichEditText extends EditText implements
     }
 
     return(super.onKeyUp(keyCode, event));
+  }
+
+  /*
+   * Call this to provide a ColorPicker instance, to be used
+   * to allow the user to pick a color for foreground/background
+   * color effects. Or, pass null to remove any previous
+   * ColorPicker instance, thereby disabling any built-in options
+   * for offering those effects.
+   */
+  public void setColorPicker(ColorPicker picker) {
+    this.colorPicker=picker;
   }
 
   /*
@@ -343,6 +365,30 @@ public class RichEditText extends EditText implements
 
       return(true);
     }
+    else if (itemId==R.id.cwac_richedittext_background) {
+      if (colorPicker!=null) {
+        Integer color=getEffectValue(BACKGROUND);
+        ColorPickerOperation op=new ColorPickerOperation(this, BACKGROUND);
+
+        if (color!=null) {
+          op.setColor(color);
+        }
+
+        colorPicker.pick(op);
+      }
+    }
+    else if (itemId==R.id.cwac_richedittext_foreground) {
+      if (colorPicker!=null) {
+        Integer color=getEffectValue(FOREGROUND);
+        ColorPickerOperation op=new ColorPickerOperation(this, FOREGROUND);
+
+        if (color!=null) {
+          op.setColor(color);
+        }
+
+        colorPicker.pick(op);
+      }
+    }
 //    else if (itemId == android.R.id.selectAll
 //        || itemId == android.R.id.cut || itemId == android.R.id.copy
 //        || itemId == android.R.id.paste) {
@@ -357,6 +403,10 @@ public class RichEditText extends EditText implements
     actionModeIsShowing=isShowing;
   }
 
+  public void setCurrentActionMode(ActionMode mode) {
+    actionMode=mode;
+  }
+
   public void enableActionModes(boolean forceActionMode) {
     this.forceActionMode=forceActionMode;
 
@@ -364,6 +414,12 @@ public class RichEditText extends EditText implements
         new EditorActionModeCallback.Native(
             (Activity)getContext(),
             R.menu.cwac_richedittext_size,
+            this, this);
+
+    EditorActionModeCallback.Native colorMode=
+        new EditorActionModeCallback.Native(
+            (Activity)getContext(),
+            R.menu.cwac_richedittext_colors,
             this, this);
 
     EditorActionModeCallback.Native effectsMode=
@@ -385,6 +441,14 @@ public class RichEditText extends EditText implements
                                             this, this);
 
     effectsMode.addChain(R.id.cwac_richedittext_size, sizeMode);
+
+    if (colorPicker==null) {
+      effectsMode.hideItem(R.id.cwac_richedittext_color);
+    }
+    else {
+      effectsMode.addChain(R.id.cwac_richedittext_color, colorMode);
+    }
+
     mainMode.addChain(R.id.cwac_richedittext_effects, effectsMode);
     mainMode.addChain(R.id.cwac_richedittext_fonts, fontsMode);
 
