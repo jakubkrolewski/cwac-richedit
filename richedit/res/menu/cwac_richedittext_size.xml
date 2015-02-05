@@ -4,25 +4,25 @@
   <item
     android:id="@+id/cwac_richedittext_grow"
     android:showAsAction="always|withText"
-    android:title="@string/cwac_richedit_grow">
+    android:title="@string/cwac_richedittext_grow">
   </item>
 
   <item
     android:id="@+id/cwac_richedittext_shrink"
     android:showAsAction="always|withText"
-    android:title="@string/cwac_richedit_shrink">
+    android:title="@string/cwac_richedittext_shrink">
   </item>
 
   <item
     android:id="@+id/cwac_richedittext_superscript"
     android:showAsAction="always|withText"
-    android:title="@string/superscript">
+    android:title="@string/cwac_richedittext_superscript">
   </item>
 
   <item
     android:id="@+id/cwac_richedittext_subscript"
     android:showAsAction="always|withText"
-    android:title="@string/subscript">
+    android:title="@string/cwac_richedittext_subscript">
   </item>
 
 </menu>

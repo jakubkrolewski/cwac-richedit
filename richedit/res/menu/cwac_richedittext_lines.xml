@@ -3,17 +3,17 @@
 	<item
 		android:id="@+id/cwac_richedittext_normal"
 		android:showAsAction="always|withText"
-		android:title="@string/normal">
+		android:title="@string/cwac_richedittext_normal">
 	</item>
   <item
     android:id="@+id/cwac_richedittext_center"
     android:showAsAction="always|withText"
-    android:title="@string/center">
+    android:title="@string/cwac_richedittext_center">
   </item>
 	 <item
     android:id="@+id/cwac_richedittext_opposite"
     android:showAsAction="always|withText"
-    android:title="@string/opposite">
+    android:title="@string/cwac_richedittext_opposite">
   </item>
   
 </menu>
