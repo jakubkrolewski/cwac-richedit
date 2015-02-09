@@ -36,7 +36,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.commonsware.cwac:richedit:0.3.0'
+    compile 'com.commonsware.cwac:richedit:0.4.+'
 }
 ```
 
@@ -127,24 +127,58 @@ static data members for each supported effect:
 - `SUPERSCRIPT`
 - `SUBSCRIPT`
 - `TYPEFACE`
+- `ABSOLUTE_SIZE`
+- `RELATIVE_SIZE`
+- `URL`
+- `BACKGROUND` (color)
+- `FOREGROUND` (color)
 
 There are other effects presently implemented, but they
 will be revised shortly, including name and data type
 changes, so don't mess with them yet.
 
+To use the `BACKGROUND` and `FOREGROUND` effects, you will need to call
+`setColorPicker()` on the `RichEditText` widget, supplying an implementation
+of the `ColorPicker` interface. That has one required method: `pick()`.
+It receives a `ColorPickerOperation`, on which you can call `hasColor()`
+(returns `true` if we are editing an existing color) and `getColor()`
+(returns the existing color value, if applicable). Your job is to 
+collect a color from the user, then call either `onColorPicked()`
+(supplying the color) or `onPickerDismissed()` (indicating that
+the user abandoned the request for a color and that the selection
+should remain unchanged). See the demo app for an example
+implementation.
+
+Known Limitations
+-----------------
+- This widget has not been tested with the AppCompat action bar backport.
+Most likely, it will not work well. AppCompat support is planned, at
+least to get a `Toolbar` implementation going. Tint support will be
+added as well, if and only if the process for doing so is documented.
+
+- The demo app uses a `ColorMixerActivity` from 
+the [CWAC-ColorMixer library](https://github.com/commonsguy/cwac-colormixer)
+for its implementation of `ColorPicker`. While easy to integrate, this approach
+has one major flaw: the color picker remains in the foreground after
+a configuration change. Since the demo activity is recreated, so its its
+`RichEditText` widget, and any existing selection (or `ColorPickerOperation`)
+is lost. What the demo app *should* do is dismiss the color picker on a
+configuration change, since the chosen color will not be applied anyway.
+
 Dependencies
 ------------
-There are no third-party dependencies at this time.
+There are no third-party dependencies at this time for the library.
+The demo app depends not only on this library but also on
+the [CWAC-ColorMixer library](https://github.com/commonsguy/cwac-colormixer).
 
-This project should work on API Level 7 and higher, except for any portions that
+This project should work on API Level 11 and higher, except for any portions that
 may be noted otherwise in this document. Please report bugs if you find features
-that do not work on API Level 7 and are not noted as requiring a higher version.
+that do not work on API Level 11 and are not noted as requiring a higher version.
 
 Version
 -------
-This is version v0.3.1 of this module, meaning it is out of its years-long
-hibernation and is ready to rampage through downtown San Francisco (or other
-cities if you prefer).
+This is version v0.4.0 of this module, meaning it is creeping towards
+respectability.
 
 Demo
 ----
@@ -180,6 +214,7 @@ the fence may work, but it may not.
 
 Release Notes
 -------------
+- v0.4.0: added support for size, color, and URL effects
 - v0.3.1: updated for Android Studio 1.0 and new AAR publishing system
 - v0.3.0: removed ActionBarSherlock support, icon for FORMAT action mode item, fixed clipboard bug, added Gradle support
 - v0.2.0: added keyboard shortcuts for bold/italic/underline and test suite, bug fixes
