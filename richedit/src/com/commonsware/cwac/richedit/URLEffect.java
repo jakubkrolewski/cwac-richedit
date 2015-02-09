@@ -15,49 +15,19 @@
 package com.commonsware.cwac.richedit;
 
 import android.text.Spannable;
-import android.text.style.RelativeSizeSpan;
 import android.text.style.URLSpan;
 
-public class URLEffect extends Effect<String> {
-  @Override
-  boolean existsInSelection(RichEditText editor) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-
-    return(getURLSpans(str, selection).length > 0);
-  }
-
-  @Override
-  String valueInSelection(RichEditText editor) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-    float max=0.0f;
-    URLSpan[] spans=getURLSpans(str, selection);
-
-    if (spans.length > 0) {
-      return(spans[0].getURL());
-    }
-
-    return(null);
-  }
-
-  @Override
-  void applyToSelection(RichEditText editor, String url) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-
-    for (URLSpan span : getURLSpans(str, selection)) {
-      str.removeSpan(span);
-    }
-
-    if (url != null) {
-      str.setSpan(new URLSpan(url), selection.start,
-                  selection.end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
-  }
-
-  private URLSpan[] getURLSpans(Spannable str, Selection selection) {
+public class URLEffect extends AbstractStringEffect<URLSpan> {
+  public URLSpan[] getStringSpans(Spannable str, Selection selection) {
     return(str.getSpans(selection.start, selection.end,
-                        URLSpan.class));
+        URLSpan.class));
+  }
+
+  public String getStringForSpan(URLSpan span) {
+    return(span.getURL());
+  }
+
+  public URLSpan buildStringSpan(String value) {
+    return(new URLSpan(value));
   }
 }

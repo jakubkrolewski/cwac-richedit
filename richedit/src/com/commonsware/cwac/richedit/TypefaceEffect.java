@@ -16,24 +16,20 @@ package com.commonsware.cwac.richedit;
 
 import android.text.Spannable;
 import android.text.style.TypefaceSpan;
+import android.text.style.URLSpan;
 
-public class TypefaceEffect extends Effect<String> {
-  @Override
-  boolean existsInSelection(RichEditText editor) {
-    return(valueInSelection(editor) != null);
+public class TypefaceEffect extends AbstractStringEffect<TypefaceSpan> {
+  public TypefaceSpan[] getStringSpans(Spannable str, Selection selection) {
+    return(str.getSpans(selection.start, selection.end,
+                        TypefaceSpan.class));
   }
 
-  @Override
-  String valueInSelection(RichEditText editor) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-    TypefaceSpan[] spans=getTypefaceSpans(str, selection);
+  public String getStringForSpan(TypefaceSpan span) {
+    return(span.getFamily());
+  }
 
-    if (spans.length > 0) {
-      return(spans[0].getFamily());
-    }
-
-    return(null);
+  public TypefaceSpan buildStringSpan(String value) {
+    return(new TypefaceSpan(value));
   }
 
   @Override
@@ -47,7 +43,7 @@ public class TypefaceEffect extends Effect<String> {
     int epilogueEnd=-1;
     String oldFamily=null;
 
-    for (TypefaceSpan span : getTypefaceSpans(str, selection)) {
+    for (TypefaceSpan span : getStringSpans(str, selection)) {
       int spanStart=str.getSpanStart(span);
 
       if (spanStart < selection.start) {
@@ -79,11 +75,5 @@ public class TypefaceEffect extends Effect<String> {
       str.setSpan(new TypefaceSpan(oldFamily), selection.end,
                   epilogueEnd, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
-  }
-
-  private TypefaceSpan[] getTypefaceSpans(Spannable str,
-                                          Selection selection) {
-    return(str.getSpans(selection.start, selection.end,
-                        TypefaceSpan.class));
   }
 }
