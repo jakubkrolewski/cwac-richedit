@@ -91,7 +91,7 @@ public class RichEditText extends EditText implements
     /*
      * Non-Boolean effects
      */
-    EFFECTS.add(LINE_ALIGNMENT);
+    // EFFECTS.add(LINE_ALIGNMENT);
     EFFECTS.add(TYPEFACE);
     EFFECTS.add(ABSOLUTE_SIZE);
     EFFECTS.add(RELATIVE_SIZE);
