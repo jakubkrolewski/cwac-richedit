@@ -26,7 +26,7 @@ abstract public class AbstractColorEffect<T extends CharacterStyle>
   abstract T buildColorSpan(Integer value);
 
   @Override
-  boolean existsInSelection(RichEditText editor) {
+  public boolean existsInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 
@@ -34,7 +34,7 @@ abstract public class AbstractColorEffect<T extends CharacterStyle>
   }
 
   @Override
-  Integer valueInSelection(RichEditText editor) {
+  public Integer valueInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
     int max=0;
@@ -48,7 +48,7 @@ abstract public class AbstractColorEffect<T extends CharacterStyle>
   }
 
   @Override
-  void applyToSelection(RichEditText editor, Integer value) {
+  public void applyToSelection(RichEditText editor, Integer value) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 

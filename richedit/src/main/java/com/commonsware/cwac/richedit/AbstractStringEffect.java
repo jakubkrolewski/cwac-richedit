@@ -25,7 +25,7 @@ abstract public class AbstractStringEffect<T extends CharacterStyle>
   abstract T buildStringSpan(String value);
 
   @Override
-  boolean existsInSelection(RichEditText editor) {
+  public boolean existsInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 
@@ -33,7 +33,7 @@ abstract public class AbstractStringEffect<T extends CharacterStyle>
   }
 
   @Override
-  String valueInSelection(RichEditText editor) {
+  public String valueInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
     int max=0;
@@ -47,7 +47,7 @@ abstract public class AbstractStringEffect<T extends CharacterStyle>
   }
 
   @Override
-  void applyToSelection(RichEditText editor, String value) {
+  public void applyToSelection(RichEditText editor, String value) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 

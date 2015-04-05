@@ -19,15 +19,14 @@ import android.text.Spannable;
 import android.text.style.AlignmentSpan;
 import com.commonsware.cwac.richtextutils.Selection;
 
-public class LineAlignmentEffect extends Effect<Layout.Alignment>
-    implements LineEffect {
+public class LineAlignmentEffect extends Effect<Layout.Alignment> {
   @Override
-  boolean existsInSelection(RichEditText editor) {
+  public boolean existsInSelection(RichEditText editor) {
     return(valueInSelection(editor)!=null);
   }
 
   @Override
-  Layout.Alignment valueInSelection(RichEditText editor) {
+  public Layout.Alignment valueInSelection(RichEditText editor) {
     Spannable str=editor.getText();
     Selection selection=new Selection(editor).extendToFullLine(str);
 
@@ -41,7 +40,7 @@ public class LineAlignmentEffect extends Effect<Layout.Alignment>
   }
 
   @Override
-  void applyToSelection(RichEditText editor, Layout.Alignment alignment) {
+  public void applyToSelection(RichEditText editor, Layout.Alignment alignment) {
     Spannable str=editor.getText();
     Selection selection=new Selection(editor).extendToFullLine(str);
 

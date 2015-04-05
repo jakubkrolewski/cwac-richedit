@@ -18,10 +18,9 @@ import android.text.Spannable;
 import android.text.style.BulletSpan;
 import com.commonsware.cwac.richtextutils.Selection;
 
-public class BulletEffect extends Effect<Boolean>
-    implements LineEffect {
+public class BulletEffect extends Effect<Boolean> {
   @Override
-  boolean existsInSelection(RichEditText editor) {
+  public boolean existsInSelection(RichEditText editor) {
     Spannable str=editor.getText();
     Selection selection=new Selection(editor).extendToFullLine(str);
 
@@ -29,12 +28,12 @@ public class BulletEffect extends Effect<Boolean>
   }
 
   @Override
-  Boolean valueInSelection(RichEditText editor) {
+  public Boolean valueInSelection(RichEditText editor) {
     return (existsInSelection(editor));
   }
 
   @Override
-  void applyToSelection(RichEditText editor, Boolean add) {
+  public void applyToSelection(RichEditText editor, Boolean add) {
     Spannable str=editor.getText();
     Selection selection=new Selection(editor).extendToFullLine(str);
 

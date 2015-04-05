@@ -22,7 +22,7 @@ abstract public class AbsoluteSizeEffect extends Effect<Integer> {
   abstract boolean isDip();
 
   @Override
-  boolean existsInSelection(RichEditText editor) {
+  public boolean existsInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 
@@ -30,7 +30,7 @@ abstract public class AbsoluteSizeEffect extends Effect<Integer> {
   }
 
   @Override
-  Integer valueInSelection(RichEditText editor) {
+  public Integer valueInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
     int max=0;
@@ -48,7 +48,7 @@ abstract public class AbsoluteSizeEffect extends Effect<Integer> {
   }
 
   @Override
-  void applyToSelection(RichEditText editor, Integer size) {
+  public void applyToSelection(RichEditText editor, Integer size) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 

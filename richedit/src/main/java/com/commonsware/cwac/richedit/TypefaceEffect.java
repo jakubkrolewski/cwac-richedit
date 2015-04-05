@@ -33,7 +33,7 @@ public class TypefaceEffect extends AbstractStringEffect<TypefaceSpan> {
   }
 
   @Override
-  void applyToSelection(RichEditText editor, String family) {
+  public void applyToSelection(RichEditText editor, String family) {
     applyToSpannable(editor.getText(), new Selection(editor), family);
   }
 

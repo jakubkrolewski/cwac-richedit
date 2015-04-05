@@ -24,7 +24,7 @@ package com.commonsware.cwac.richedit;
  * meaning the effect is a toggle (on or off), such as boldface.
  */
 abstract public class Effect<T> {
-  abstract boolean existsInSelection(RichEditText editor);
-  abstract T valueInSelection(RichEditText editor);
-  abstract void applyToSelection(RichEditText editor, T add);
+  abstract public boolean existsInSelection(RichEditText editor);
+  abstract public T valueInSelection(RichEditText editor);
+  abstract public void applyToSelection(RichEditText editor, T add);
 }

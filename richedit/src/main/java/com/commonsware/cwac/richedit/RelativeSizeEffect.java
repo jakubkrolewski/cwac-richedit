@@ -20,7 +20,7 @@ import com.commonsware.cwac.richtextutils.Selection;
 
 public class RelativeSizeEffect extends Effect<Float> {
   @Override
-  boolean existsInSelection(RichEditText editor) {
+  public boolean existsInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 
@@ -28,7 +28,7 @@ public class RelativeSizeEffect extends Effect<Float> {
   }
 
   @Override
-  Float valueInSelection(RichEditText editor) {
+  public Float valueInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
     float max=0.0f;
@@ -46,7 +46,7 @@ public class RelativeSizeEffect extends Effect<Float> {
   }
 
   @Override
-  void applyToSelection(RichEditText editor, Float proportion) {
+  public void applyToSelection(RichEditText editor, Float proportion) {
     Selection selection=new Selection(editor);
     Spannable str=editor.getText();
 
