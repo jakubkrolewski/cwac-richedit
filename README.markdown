@@ -16,13 +16,19 @@ users to format selected pieces of text
 - Provides convenience methods to allow developers to 
 trigger formatting for selected text via other means
 
-This widget is packaged as an Android library project, with
-a `demo/` subdirectory containing a regular Android project
+This widget is packaged as an Android Studio library module, with
+a `demo/` subdirectory containing a regular Android Studio app module
 with a couple of activities demonstrating the use of
 `RichEditText`.
 
+This library also contains a series of utility classes for working
+with rich text. In particular, it has code to convert a `Spanned` to
+and from XHTML, as an alternative to the `toHtml()`
+and `fromHtml()` methods on Android's `Html` class.
+
 In addition to the documentation on this page,
-[partial JavaDocs are also available](http://javadocs.commonsware.com/cwac/richedit/index.html).
+partial JavaDocs are also available for [the editor widget](http://javadocs.commonsware.com/cwac/richedit/index.html)
+and [the utility classes](http://javadocs.commonsware.com/cwac/richtextutils/index.html).
 
 This Android library project is available as an artifact for use
 with Gradle. To use that, add the following
@@ -36,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    compile 'com.commonsware.cwac:richedit:0.4.+'
+    compile 'com.commonsware.cwac:richedit:0.5.+'
 }
 ```
 
@@ -44,13 +50,19 @@ Or, if you cannot use SSL, use `http://repo.commonsware.com` for the repository
 URL.
 
 If you are not using Gradle, download or clone this repo, and add the `richedit/`
-project to your environment as an Android library project.
+module to your Android Studio project as a library module.
+
+**NOTE**: This project is no longer compatible with Eclipse at the source
+level, as of version 0.5.0. A ZIP file containing what should be an Eclipse-compatible
+project is in [the releases area](https://github.com/commonsguy/cwac-richedit/releases).
+However, this ZIP file has not been tested &mdash; please file bug reports
+if you encounter problems with it.
 
 **NOTE**: If you were using v0.2.0 with ActionBarSherlock, ActionBarSherlock
 support was removed from this project as of v0.3.0. Please remain on v0.2.0,
 or switch to the native API Level 11+ action bar (a.k.a., "15 is the new 10").
 
-Usage
+Usage: RichEditText
 -----
 Simply add `com.commonsware.cwac.richedit.RichEditText`
 widgets to your layout as needed:
@@ -90,6 +102,12 @@ The action modes work so-so on phones at this time &mdash;
 tablets work better. To get it to work on phones at all, you will need
 to include `android:imeOptions="flagNoExtractUi"` as an attribute on the
 `RichEditText`.
+
+**NOTE**: The action modes do not work on Android 5.1. They will be
+deprecated in an upcoming release of this library and will be removed
+entirely before the library reaches 1.0. A stock toolbar implementation
+will be provided instead as the out-of-the-box way to offer users the
+ability to control effects.
 
 Alternatively, you can have
 your own toolbar or gesture interface or
@@ -149,14 +167,14 @@ the user abandoned the request for a color and that the selection
 should remain unchanged). See the demo app for an example
 implementation.
 
-Known Limitations
+Known Limitations: RichEditText
 -----------------
 - This widget has not been tested with the AppCompat action bar backport.
 Most likely, it will not work well. AppCompat support is planned, at
 least to get a `Toolbar` implementation going. Tint support will be
 added as well, if and only if the process for doing so is documented.
 
-- The demo app uses a `ColorMixerActivity` from 
+- The `demo` app uses a `ColorMixerActivity` from 
 the [CWAC-ColorMixer library](https://github.com/commonsguy/cwac-colormixer)
 for its implementation of `ColorPicker`. While easy to integrate, this approach
 has one major flaw: the color picker remains in the foreground after
@@ -164,6 +182,110 @@ a configuration change. Since the demo activity is recreated, so its its
 `RichEditText` widget, and any existing selection (or `ColorPickerOperation`)
 is lost. What the demo app *should* do is dismiss the color picker on a
 configuration change, since the chosen color will not be applied anyway.
+
+Usage: XHTML Conversion
+----------------
+The principal set of utilities for this library is to convert
+`Spanned` objects to/from XHTML.
+
+### Scope of Support
+
+The primary objective of this conversion logic is to support the
+formatting offered by [the `RichEditText` widget](https://github.com/commonsguy/cwac-richedit).
+Apps that wish to allow users to enter in rich text can use
+`RichEditText`, then persist the `Spanned` using this library. Later
+on, if the user wants to edit rich text entered previously, the app
+can convert the XHTML back into a `Spanned` to supply to `RichEditText`.
+
+A secondary objective is to allow the resulting persisted value to be
+usable by anything that needs an XHTML representation of rich text.
+For example, you might supply the XHTML to a Web service, or upload
+it to a Web site. That's why XHTML is chosen as the representation format,
+as opposed to some sort of `Serializable` or other binary packaging.
+
+Whereas `Html.fromHtml()` is designed to parse semi-arbitrary HTML,
+this library is not. You are welcome to feed it XHTML from wherever and
+see if it works. As the saying goes, YMMV.
+
+### Basic Parsing and Generating
+
+Given a `Spanned` (e.g., `getText()` on a `RichEditText`), to get an
+XHTML representation of the `Spanned`, create an instance of
+`SpannedXhtmlGenerator` and call `toXhtml()` on it. This will return
+a `String` of XHTML.
+
+Later on, to get the `Spanned` back from that XHTML, create an instance
+of a `SpannableStringGenerator` and call `fromXhtml()` on it, passing
+it the `String` of XHTML, and getting back a a `Spannable` that you can
+use with `RichEditText` or whatever.
+
+And that's pretty much it.
+
+### Conversion Rules
+
+A stock set of rules, embodied in a collection of `SpanTagHandler`
+instances, are applied to convert the `Spanned` to XHTML and back again:
+
+| `CharacterStyle`      | XHTML Tag Structure                     |
+| --------------------- | --------------------------------------- |
+| `AbsoluteSizeSpan`    | `<span style="font-size:...px;">`      |
+| `BackgroundColorSpan` | `<span style="background-color:#...">` |
+| `ForegroundColorSpan` | `<font color="...">`                    |
+| `RelativeSizeSpan`    | `<span style="font-size:...%;">`       |
+| `StrikethroughSpan`   | `<strike>`                              |
+| `StyleSpan`           | `<b>` or `<i>`                          |
+| `SubscriptSpan`       | `<sub>`                                 |
+| `SuperscriptSpan`     | `<sup>`                                 |
+| `TypefaceSpan`        | `<span style="font-family:...;">`       |
+| `UnderlineSpan`       | `<u>`                                   |
+| `URLSpan`             | `<a href="...">`                        |
+
+### Customizing the Conversion
+
+If there are new `CharacterStyle` subclasses that you want to support,
+and you want to do so on a global (process-level) basis, create
+a subclass of `SpanTagHandler` and register it via
+`registerGlobalSpanTagHandler()` on the `SpanTagHandler` class.
+
+If you want to override the default rules, create a subclass
+(or subclasses) of `SpanTagHandler` for those rules. Then, create
+an instance of `SpanTagRoster` and register your handlers via
+`registerSpanTagHandler()` on the roster. You can pass in your
+roster to the constructor of `SpannedXhtmlGenerator` or
+`SpannableStringGenerator`.
+
+There are a bunch of implemenations of `SpanTagHandler`, for the
+stock rules, in the `com.commonsware.cwac.richtextutils.handler`
+package, so you can see what creating these looks like.
+There is also a `ClassSpanTagHandler` that you can use to
+use a `<span class="...">` tag for a particular `CharacterStyle`, if
+you want to use CSS classes for the actual formatting rules.
+
+Note, though, that if you customize the rules by any of these
+mechanisms, it is incumbent upon you to *keep* those customizations.
+If you generate XHTML using one set of rules, you need to use
+the same (or a compatible) set of rules to restore the `Spanned`.
+
+Known Limitations
+-----------------
+- Two start tags in sequence may be flipped in order during conversion.
+So, for example, suppose you had `<b><i>Foo</i></b>`, and you converted
+that into a `Spanned`, then back into XHTML. The resulting XHTML could
+be the same or could be `<i><b>Foo</b></i>`.
+
+- It is possible that multiple `<span>` elements will be applied for the
+same text (e.g., it is adjusted using a `RelativeSizeSpan` and a
+`BackgroundColorSpan`). No attempt is made to coalesce those `<span>`
+elements into one, even though from an XHTML standpoint, this is certainly
+possible (and perhaps even desired).
+
+- The XHTML generated by this library is unofficial until the library
+reaches 1.0. At that point, the XHTML specification will remain fixed
+through point-level releases (e.g., 1.1) until the next major release
+(e.g., 2.0). Hence, until the library reaches 1.0, and for major
+releases after that, you may need to go through some cleanup logic, as
+your XHTML may not be parsed the same way as it had been in earlier
+versions of the library.
 
 Dependencies
 ------------
@@ -177,13 +299,18 @@ that do not work on API Level 11 and are not noted as requiring a higher version
 
 Version
 -------
-This is version v0.4.0 of this module, meaning it is creeping towards
+This is version v0.5.0 of this module, meaning it is creeping towards
 respectability.
 
 Demo
 ----
-In the `demo/` sub-project you will find
-a sample activity that demonstrates the use of `RichEditor`.
+In the `demo/` module you will find
+a sample activity that demonstrates the use of `RichEditText`.
+In the `demo-utils/` module you will find a sample activity that demonstrates
+the use of the the XHTML utilties.
+
+Also, the `androidTest/` directory in the `main/` sourceset of the
+`richedit/` module contains a number of instrumentation tests.
 
 License
 -------
@@ -214,6 +341,7 @@ the fence may work, but it may not.
 
 Release Notes
 -------------
+- v0.5.0: added preliminary support for bullets, added XHTML conversion classes
 - v0.4.0: added support for size, color, and URL effects
 - v0.3.1: updated for Android Studio 1.0 and new AAR publishing system
 - v0.3.0: removed ActionBarSherlock support, icon for FORMAT action mode item, fixed clipboard bug, added Gradle support
