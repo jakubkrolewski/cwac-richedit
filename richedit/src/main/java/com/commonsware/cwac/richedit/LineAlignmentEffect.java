@@ -50,7 +50,7 @@ public class LineAlignmentEffect extends Effect<Layout.Alignment> {
 
     if (alignment!=null) {
       str.setSpan(new AlignmentSpan.Standard(alignment), selection.getStart(), selection.getEnd(),
-                  Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                  Spannable.SPAN_PARAGRAPH);
     }
   }
 
@@ -66,7 +66,7 @@ public class LineAlignmentEffect extends Effect<Layout.Alignment> {
       for (Selection chunk : selection.buildSelectionsForLines(str)) {
         str.setSpan(new AlignmentSpan.Standard(alignment), chunk.getStart(),
                     chunk.getEnd(),
-                    Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+                    Spannable.SPAN_PARAGRAPH);
       }
     }
   }
