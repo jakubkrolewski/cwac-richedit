@@ -22,6 +22,8 @@ import android.text.TextUtils;
 import android.text.style.AlignmentSpan;
 import android.text.style.BulletSpan;
 import android.text.style.CharacterStyle;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Stack;
 import java.util.WeakHashMap;
 
@@ -194,6 +196,8 @@ public class SpannedXhtmlGenerator {
       CharacterStyle[] spansInEffect=src.getSpans(i, nextSpanEnd,
                                                   CharacterStyle.class);
 
+      Arrays.sort(spansInEffect, new EndSpanComparator(src));
+
       while (!activeSpans.empty()) {
         boolean stillInEffect=false;
         CharacterStyle active=activeSpans.peek();
@@ -292,5 +296,18 @@ public class SpannedXhtmlGenerator {
     }
 
     return((Spanned)sub);
+  }
+
+  private static class EndSpanComparator implements Comparator<Object> {
+    final private Spanned src;
+
+    EndSpanComparator(Spanned src) {
+      this.src=src;
+    }
+
+    @Override
+    public int compare(Object lhs, Object rhs) {
+      return(src.getSpanEnd(rhs)-src.getSpanEnd(lhs));
+    }
   }
 }
