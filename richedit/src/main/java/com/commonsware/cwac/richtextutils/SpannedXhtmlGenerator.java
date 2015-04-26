@@ -135,8 +135,11 @@ public class SpannedXhtmlGenerator {
         }
 
         result.append("<li>");
-        result.append(src.subSequence(spanStart, spanEnd - 1));
-        // -1 to remove trailing newline
+
+        Spanned sub=(Spanned)src.subSequence(spanStart, spanEnd - 1);
+                                    // -1 to remove trailing newline
+
+        result.append(blockToXhtml(sub, null));
         result.append("</li>");
 
         lastSpanEnd=spanEnd;
@@ -147,7 +150,9 @@ public class SpannedXhtmlGenerator {
       }
 
       if (lastSpanEnd < src.length()) {
-        result.append(src.subSequence(lastSpanEnd, src.length()));
+        Spanned sub=(Spanned)src.subSequence(lastSpanEnd, src.length());
+
+        result.append(blockToXhtml(sub, null));
       }
     }
   }
