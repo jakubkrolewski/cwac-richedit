@@ -15,21 +15,31 @@
 package com.commonsware.cwac.richedit.demo;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Layout;
 import android.text.Selection;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.ToggleButton;
 import com.commonsware.cwac.colormixer.ColorMixerActivity;
-import com.commonsware.cwac.richedit.ColorPicker;
-import com.commonsware.cwac.richedit.ColorPickerOperation;
-import com.commonsware.cwac.richedit.RichEditText;
-import com.commonsware.cwac.richedit.URLEffect;
+import com.commonsware.cwac.richedit.*;
+import com.commonsware.cwac.richtextutils.SpannedXhtmlGenerator;
+
+import java.util.List;
 
 public class RichTextEditorDemoActivity extends Activity
   implements ColorPicker {
   private static final int COLOR_REQUEST=1337;
   private RichEditText editor=null;
+  private ToggleButton boldToggleButton;
+  private ToggleButton alignmentToggleButton;
+  private Button htmlPreviewButton;
   private ColorPickerOperation colorPickerOp=null;
   
   @Override
@@ -39,8 +49,56 @@ public class RichTextEditorDemoActivity extends Activity
     setContentView(R.layout.main);
     
     editor=(RichEditText)findViewById(R.id.editor);
+    boldToggleButton=(ToggleButton)findViewById(R.id.bold);
+    alignmentToggleButton=(ToggleButton)findViewById(R.id.alignment);
+    htmlPreviewButton=(Button)findViewById(R.id.htmlPreview);
+
     editor.setColorPicker(this);
-    editor.enableActionModes(true);
+    editor.enableActionModes(false);
+    editor.setOnSelectionChangedListener(new RichEditText.OnSelectionChangedListener() {
+      @Override
+      public void onSelectionChanged(int start, int end, List<Effect<?>> effects) {
+        Log.d("DemoActivity", "onSelectionChanged, start: " + start + ", end: " + end + ", effects: " + effects);
+        boolean boldEnabled = false;
+        boolean alignmentChanged = false;
+
+        for (Effect effect : effects) {
+          if (effect == RichEditText.BOLD) {
+            boldEnabled = true;
+          } else if (effect == RichEditText.LINE_ALIGNMENT) {
+            alignmentChanged = effect.valueInSelection(editor).equals(Layout.Alignment.ALIGN_OPPOSITE);
+          }
+        }
+
+        boldToggleButton.setChecked(boldEnabled);
+        alignmentToggleButton.setChecked(alignmentChanged);
+      }
+    });
+
+    boldToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.applyEffect(RichEditText.BOLD, isChecked);
+      }
+    });
+
+    alignmentToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.applyEffect(RichEditText.LINE_ALIGNMENT,
+                isChecked ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_NORMAL);
+      }
+    });
+
+    htmlPreviewButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        new AlertDialog.Builder(RichTextEditorDemoActivity.this)
+                .setMessage(new SpannedXhtmlGenerator().toXhtml(editor.getText()))
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+      }
+    });
   }
 
   @Override
