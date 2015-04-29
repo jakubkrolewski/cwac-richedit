@@ -19,7 +19,7 @@ import android.text.style.CharacterStyle;
 import com.commonsware.cwac.richtextutils.Selection;
 
 abstract public class AbstractStringEffect<T extends CharacterStyle>
-    extends Effect<String> {
+    extends CharactersEffect<String> {
   abstract T[] getStringSpans(Spannable str, Selection selection);
   abstract String getStringForSpan(T span);
   abstract T buildStringSpan(String value);
@@ -47,10 +47,7 @@ abstract public class AbstractStringEffect<T extends CharacterStyle>
   }
 
   @Override
-  public void applyToSelection(RichEditText editor, String value) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-
+  public void applyToSelection(Spannable str, Selection selection, String value) {
     for (T span : getStringSpans(str, selection)) {
       str.removeSpan(span);
     }

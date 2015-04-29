@@ -20,7 +20,7 @@ import android.text.style.CharacterStyle;
 import com.commonsware.cwac.richtextutils.Selection;
 
 abstract public class AbstractColorEffect<T extends CharacterStyle>
-    extends Effect<Integer> {
+    extends CharactersEffect<Integer> {
   abstract T[] getColorSpans(Spannable str, Selection selection);
   abstract int getColorForSpan(T span);
   abstract T buildColorSpan(Integer value);
@@ -48,10 +48,7 @@ abstract public class AbstractColorEffect<T extends CharacterStyle>
   }
 
   @Override
-  public void applyToSelection(RichEditText editor, Integer value) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-
+  public void applyToSelection(Spannable str, Selection selection, Integer value) {
     for (T span : getColorSpans(str, selection)) {
       str.removeSpan(span);
     }

@@ -18,7 +18,7 @@ import android.text.Spannable;
 import android.text.style.AbsoluteSizeSpan;
 import com.commonsware.cwac.richtextutils.Selection;
 
-abstract public class AbsoluteSizeEffect extends Effect<Integer> {
+abstract public class AbsoluteSizeEffect extends CharactersEffect<Integer> {
   abstract boolean isDip();
 
   @Override
@@ -48,10 +48,7 @@ abstract public class AbsoluteSizeEffect extends Effect<Integer> {
   }
 
   @Override
-  public void applyToSelection(RichEditText editor, Integer size) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-
+  public void applyToSelection(Spannable str, Selection selection, Integer size) {
     for (AbsoluteSizeSpan span : getAbsoluteSizeSpans(str, selection)) {
       str.removeSpan(span);
     }

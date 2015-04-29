@@ -19,7 +19,7 @@ import android.text.Spannable;
 import android.text.style.AlignmentSpan;
 import com.commonsware.cwac.richtextutils.Selection;
 
-public class LineAlignmentEffect extends Effect<Layout.Alignment> {
+public class LineAlignmentEffect extends ParagraphEffect<Layout.Alignment> {
   @Override
   public boolean existsInSelection(RichEditText editor) {
     return(valueInSelection(editor)!=null);
@@ -40,16 +40,13 @@ public class LineAlignmentEffect extends Effect<Layout.Alignment> {
   }
 
   @Override
-  public void applyToSelection(RichEditText editor, Layout.Alignment alignment) {
-    Spannable str=editor.getText();
-    Selection selection=new Selection(editor).extendToFullLine(str);
-
-    for (AlignmentSpan.Standard span : getAlignmentSpans(str, selection)) {
+  protected void applyToParagraphSelection(Selection paragraphSelection, Spannable str, Layout.Alignment alignment) {
+    for (AlignmentSpan.Standard span : getAlignmentSpans(str, paragraphSelection)) {
       str.removeSpan(span);
     }
 
     if (alignment!=null) {
-      str.setSpan(new AlignmentSpan.Standard(alignment), selection.getStart(), selection.getEnd(),
+      str.setSpan(new AlignmentSpan.Standard(alignment), paragraphSelection.getStart(), paragraphSelection.getEnd(),
                   Spannable.SPAN_INCLUSIVE_INCLUSIVE);
     }
   }

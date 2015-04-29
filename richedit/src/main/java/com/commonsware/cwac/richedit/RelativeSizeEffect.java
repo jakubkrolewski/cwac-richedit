@@ -18,7 +18,7 @@ import android.text.Spannable;
 import android.text.style.RelativeSizeSpan;
 import com.commonsware.cwac.richtextutils.Selection;
 
-public class RelativeSizeEffect extends Effect<Float> {
+public class RelativeSizeEffect extends CharactersEffect<Float> {
   @Override
   public boolean existsInSelection(RichEditText editor) {
     Selection selection=new Selection(editor);
@@ -46,17 +46,14 @@ public class RelativeSizeEffect extends Effect<Float> {
   }
 
   @Override
-  public void applyToSelection(RichEditText editor, Float proportion) {
-    Selection selection=new Selection(editor);
-    Spannable str=editor.getText();
-
+  public void applyToSelection(Spannable str, Selection selection, Float proportion) {
     for (RelativeSizeSpan span : getRelativeSizeSpans(str, selection)) {
       str.removeSpan(span);
     }
 
     if (proportion != null) {
       str.setSpan(new RelativeSizeSpan(proportion), selection.getStart(),
-                  selection.getEnd(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                  selection.getEnd(), Spannable.SPAN_EXCLUSIVE_INCLUSIVE);
     }
   }
 

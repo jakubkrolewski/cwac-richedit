@@ -18,14 +18,14 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.text.Editable;
 import android.text.Layout;
 import android.text.Spannable;
-import android.text.style.BulletSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.SubscriptSpan;
-import android.text.style.SuperscriptSpan;
-import android.text.style.UnderlineSpan;
+import android.text.TextWatcher;
+import android.text.style.*;
 import android.util.AttributeSet;
+import android.util.Log;
+import android.util.Pair;
 import android.view.ActionMode;
 import android.view.KeyEvent;
 import android.widget.EditText;
@@ -68,6 +68,7 @@ public class RichEditText extends EditText implements
 
   private static final ArrayList<Effect<?>> EFFECTS=
       new ArrayList<Effect<?>>();
+  private final List<Pair<Effect, Object>> effectsForNextInput = new ArrayList<Pair<Effect, Object>>();
   private boolean isSelectionChanging=false;
   private OnSelectionChangedListener selectionListener=null;
   private boolean actionModeIsShowing=false;
@@ -111,6 +112,7 @@ public class RichEditText extends EditText implements
    */
   public RichEditText(Context context) {
     super(context);
+    init();
   }
 
   /*
@@ -119,6 +121,7 @@ public class RichEditText extends EditText implements
    */
   public RichEditText(Context context, AttributeSet attrs) {
     super(context, attrs);
+    init();
   }
 
   /*
@@ -127,6 +130,11 @@ public class RichEditText extends EditText implements
    */
   public RichEditText(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
+    init();
+  }
+
+  private void init(){
+    addTextChangedListener(new AdjustingSpansTextListener());
   }
 
   /*
@@ -249,7 +257,11 @@ public class RichEditText extends EditText implements
    */
   public <T> void applyEffect(Effect<T> effect, T value) {
     if (!isSelectionChanging) {
-      effect.applyToSelection(this, value);
+      if (effect.canBeAppliedToSelection(this)) {
+        effect.applyToSelection(this, value);
+      } else {
+        effectsForNextInput.add(new Pair<Effect, Object>(effect, value));
+      }
     }
   }
 
@@ -485,9 +497,9 @@ public class RichEditText extends EditText implements
   }
 
   /*
-   * Interface for listener object to be registered by
-   * setOnSelectionChangedListener().
-   */
+     * Interface for listener object to be registered by
+     * setOnSelectionChangedListener().
+     */
   public interface OnSelectionChangedListener {
     /*
      * Provides details of the new selection, including the
@@ -527,6 +539,36 @@ public class RichEditText extends EditText implements
       SimpleBooleanEffect<SubscriptSpan> {
     SubscriptEffect() {
       super(SubscriptSpan.class);
+    }
+  }
+
+  private class AdjustingSpansTextListener implements TextWatcher {
+
+    @Override
+    public void afterTextChanged(Editable editable) {
+      int cursorPosition = new Selection(RichEditText.this).getStart();
+      if (cursorPosition > 0) {
+        Selection lastInputSelection = new Selection(cursorPosition - 1, cursorPosition);
+
+        for (Pair<Effect, Object> effectWithValue : effectsForNextInput) {
+          Effect effect = effectWithValue.first;
+          Object value = effectWithValue.second;
+
+          effect.applyToSelection(getText(), lastInputSelection, value);
+        }
+      }
+
+      effectsForNextInput.clear();
+    }
+
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+
     }
   }
 }

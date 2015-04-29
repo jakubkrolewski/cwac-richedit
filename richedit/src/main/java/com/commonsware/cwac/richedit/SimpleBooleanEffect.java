@@ -18,7 +18,7 @@ import android.text.Spannable;
 import android.util.Log;
 import com.commonsware.cwac.richtextutils.Selection;
 
-public class SimpleBooleanEffect<T> extends Effect<Boolean> {
+public class SimpleBooleanEffect<T> extends CharactersEffect<Boolean> {
   private Class<T> clazz;
 
   SimpleBooleanEffect(Class<T> clazz) {
@@ -52,11 +52,7 @@ public class SimpleBooleanEffect<T> extends Effect<Boolean> {
   }
 
   @Override
-  public void applyToSelection(RichEditText editor, Boolean add) {
-    applyToSpannable(editor.getText(), new Selection(editor), add);
-  }
-
-  void applyToSpannable(Spannable str, Selection selection, Boolean add) {
+  public void applyToSelection(Spannable str, Selection selection, Boolean add) {
     T[] spans=str.getSpans(selection.getStart(), selection.getEnd(), clazz);
     int prologueStart=Integer.MAX_VALUE;
     int epilogueEnd=-1;
