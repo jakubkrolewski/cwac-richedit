@@ -544,18 +544,18 @@ public class RichEditText extends EditText implements
 
   private class AdjustingSpansTextListener implements TextWatcher {
 
+    private int start;
+    private int count;
+
     @Override
     public void afterTextChanged(Editable editable) {
-      int cursorPosition = new Selection(RichEditText.this).getStart();
-      if (cursorPosition > 0) {
-        Selection lastInputSelection = new Selection(cursorPosition - 1, cursorPosition);
+      Selection lastInputSelection = new Selection(start, start + count);
 
-        for (Pair<Effect, Object> effectWithValue : effectsForNextInput) {
-          Effect effect = effectWithValue.first;
-          Object value = effectWithValue.second;
+      for (Pair<Effect, Object> effectWithValue : effectsForNextInput) {
+        Effect effect = effectWithValue.first;
+        Object value = effectWithValue.second;
 
-          effect.applyToSelection(getText(), lastInputSelection, value);
-        }
+        effect.applyToSelection(getText(), lastInputSelection, value);
       }
 
       effectsForNextInput.clear();
@@ -568,7 +568,8 @@ public class RichEditText extends EditText implements
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+      this.start = start;
+      this.count = count;
     }
   }
 }
