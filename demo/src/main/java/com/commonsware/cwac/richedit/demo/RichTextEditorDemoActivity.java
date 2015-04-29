@@ -39,6 +39,7 @@ public class RichTextEditorDemoActivity extends Activity
   private RichEditText editor=null;
   private ToggleButton boldToggleButton;
   private ToggleButton alignmentToggleButton;
+  private ToggleButton fontSizeToggleButton;
   private Button htmlPreviewButton;
   private ColorPickerOperation colorPickerOp=null;
   
@@ -51,6 +52,7 @@ public class RichTextEditorDemoActivity extends Activity
     editor=(RichEditText)findViewById(R.id.editor);
     boldToggleButton=(ToggleButton)findViewById(R.id.bold);
     alignmentToggleButton=(ToggleButton)findViewById(R.id.alignment);
+    fontSizeToggleButton=(ToggleButton)findViewById(R.id.fontSize);
     htmlPreviewButton=(Button)findViewById(R.id.htmlPreview);
 
     editor.setColorPicker(this);
@@ -61,17 +63,21 @@ public class RichTextEditorDemoActivity extends Activity
         Log.d("DemoActivity", "onSelectionChanged, start: " + start + ", end: " + end + ", effects: " + effects);
         boolean boldEnabled = false;
         boolean alignmentChanged = false;
+        boolean fontSizeChanged = false;
 
         for (Effect effect : effects) {
           if (effect == RichEditText.BOLD) {
             boldEnabled = true;
           } else if (effect == RichEditText.LINE_ALIGNMENT) {
             alignmentChanged = effect.valueInSelection(editor).equals(Layout.Alignment.ALIGN_OPPOSITE);
+          } else if (effect == RichEditText.RELATIVE_SIZE) {
+            fontSizeChanged = effect.valueInSelection(editor).equals(1.5f);
           }
         }
 
         boldToggleButton.setChecked(boldEnabled);
         alignmentToggleButton.setChecked(alignmentChanged);
+        fontSizeToggleButton.setChecked(fontSizeChanged);
       }
     });
 
@@ -87,6 +93,13 @@ public class RichTextEditorDemoActivity extends Activity
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         editor.applyEffect(RichEditText.LINE_ALIGNMENT,
                 isChecked ? Layout.Alignment.ALIGN_OPPOSITE : Layout.Alignment.ALIGN_NORMAL);
+      }
+    });
+
+    fontSizeToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        editor.applyEffect(RichEditText.RELATIVE_SIZE, isChecked ? 1.5f : 1f);
       }
     });
 

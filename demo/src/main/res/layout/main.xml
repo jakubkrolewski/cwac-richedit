@@ -25,6 +25,13 @@
             android:layout_height="wrap_content"
             android:textOn="Alignment opposite"
             android:textOff="Alignment normal"/>
+
+        <ToggleButton
+            android:id="@+id/fontSize"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOn="Font +50%"
+            android:textOff="Font normal"/>
     </LinearLayout>
 
     <com.commonsware.cwac.richedit.RichEditText
