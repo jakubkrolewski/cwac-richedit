@@ -293,9 +293,7 @@ public class RichEditText extends EditText implements
    * applied to the current selection, adds it.
    */
   public void toggleEffect(Effect<Boolean> effect) {
-    if (!isSelectionChanging) {
-      effect.applyToSelection(this, !effect.valueInSelection(this));
-    }
+    applyEffect(effect, !effect.valueInSelection(this));
   }
 
   @Override
